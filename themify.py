@@ -1,5 +1,36 @@
-from PIL import Image
 import sys
+import requests
+from PIL import Image
+
+
+
+def hex_to_rgb(hexcolor):
+    """
+    Given a hex color, return its RGB value equivalent as a tuple
+    """
+    hexcolor = hexcolor.strip('#')
+    rgb = tuple(int(hexcolor[i:i+2], 16) for i in (0, 2 ,4))
+    return rgb
+
+
+def get_random_color_palette():
+    """
+    Get a random color palette using the Colour Lovers API. 
+    Simplify the result a bit, and convert hex to rgb.
+    """
+    r = requests.get('https://www.colourlovers.com/api/palettes/random?format=json').json()
+    palette_dict = {
+                    'title': r[0]['title'], 
+                    'colors': r[0]['colors'],
+                    'count': len(r[0]['colors'])
+                    }
+
+    # Convert all hex entries to RGB
+    for idx, color in enumerate(palette_dict['colors']):
+        palette_dict['colors'][idx] = hex_to_rgb(color)
+
+    return palette_dict
+
 
 img = Image.open('crazypants.gif')
 img = img.convert("RGBA")
