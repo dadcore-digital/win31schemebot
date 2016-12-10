@@ -142,10 +142,15 @@ def theme_screenshot(theme_dict, filename):
                     pixdata[x, y] = theme_dict[k]
                     break
 
-    img.save("generated/%s.png" % filename, "PNG")
 
     if DEBUG:
+        path = "generated/%s.png" % filename
         img.show()
+    else:
+        path = "tweetme"
+
+    img.save("%s.png" % path, "PNG")
+
 
 def generate_image(palette_id=None):
 
