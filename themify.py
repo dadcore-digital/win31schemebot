@@ -3,7 +3,8 @@ import requests
 from PIL import Image
 import random
 
-global color_lookup
+DEBUG = True
+
 color_lookup = {'Desktop': (255, 0, 255, 255),
                 'Inactive Border': (170, 0, 85, 255),
                 'Inactive Title Bar': (255, 0, 0, 255),
@@ -27,6 +28,8 @@ color_lookup = {'Desktop': (255, 0, 255, 255),
 }
 
 
+
+
 def hex_to_rgb(hexcolor):
     """
     Given a hex color, return its RGB value equivalent as a tuple
@@ -35,27 +38,72 @@ def hex_to_rgb(hexcolor):
     rgb = tuple(int(hexcolor[i:i+2], 16) for i in (0, 2 ,4))
     return rgb
 
+def rgb_to_hsb(r, g, b):
+    """
+    Given a rgb color as a tuple, return its hsv value equivalent as a tuple
+    """
 
-def get_random_color_palette():
+    r, g, b = r/255.0, g/255.0, b/255.0  
+    mx = max(r, g, b)  
+    mn = min(r, g, b)  
+    df = mx-mn  
+    if mx == mn:  
+        h = 0  
+    elif mx == r:  
+        h = (60 * ((g-b)/df) + 360) % 360  
+    elif mx == g:  
+        h = (60 * ((b-r)/df) + 120) % 360  
+    elif mx == b:  
+        h = (60 * ((r-g)/df) + 240) % 360  
+    if mx == 0:  
+        s = 0  
+    else:  
+        s = (df/mx)*100  
+    v = mx*100  
+    return h, s, v 
+
+
+def get_color_palette(palette_id=None):
     """
     Get a random color palette using the Colour Lovers API. 
     Simplify the result a bit, and convert hex to rgb.
     """
-    r = requests.get('https://www.colourlovers.com/api/palettes/random?format=json').json()
+    if palette_id:
+        url ='https://www.colourlovers.com/api/palette/%s?format=json' % palette_id
+    else:
+        url = 'https://www.colourlovers.com/api/palettes/random?format=json'
+    
+    r = requests.get(url).json()
+    
+
     palette_dict = {
                     'title': r[0]['title'], 
-                    'colors': r[0]['colors'],
-                    'count': len(r[0]['colors'])
+                    'count': len(r[0]['colors']),
+                    'id': r[0]['id'],
                     }
 
-    # Convert all hex entries to RGB
-    for idx, color in enumerate(palette_dict['colors']):
-        palette_dict['colors'][idx] = hex_to_rgb(color)
+    colors = []
+    for hex_color in r[0]['colors']:
+        
+        rgb = hex_to_rgb(hex_color)        
+        hsb = rgb_to_hsb(*rgb)
+
+        color_dict = { 'hex': hex_color, 'rgb': rgb, 'hsb': hsb }
+        colors.append(color_dict)
+    
+    palette_dict['colors'] = colors
+
+
+    # Re-sort colors based on saturation
+    palette_dict['colors'] = sorted(palette_dict['colors'], key=lambda x: x['hsb'][1], reverse=True) 
 
     # Create a filename safe version of title
     palette_dict['filename'] = "".join([c for c in palette_dict['title'] if c.isalpha() or c.isdigit() or c==' ']).rstrip()
     palette_dict['filename'] = palette_dict['filename'].replace(' ', '_')
     palette_dict['filename'] = palette_dict['filename'].lower()
+
+    if DEBUG:
+        print palette_dict['id']
 
     return palette_dict
 
@@ -71,7 +119,13 @@ def make_theme(palette):
     theme_dict = {}
 
     for field in fields:
-        theme_dict[field] = random.choice(palette['colors'])
+        color_choice = random.choice(palette['colors'])
+        theme_dict[field] = color_choice['rgb']
+
+    # Editorial Color Overrides
+    theme_dict['Menu Bar'] = palette['colors'][0]['rgb']
+    theme_dict['Active Tilte Bar'] = palette['colors'][0]['rgb']
+    theme_dict['Active Tilte Text'] = palette['colors'][1]['rgb']
 
     filename = palette['filename']
 
@@ -93,7 +147,28 @@ def theme_screenshot(theme_dict, filename):
                     pixdata[x, y] = theme_dict[k]
                     break
 
-    img.save("%s.png" % filename, "PNG")
+    img.save("generated/%s.png" % filename, "PNG")
+
+    if DEBUG:
+        img.show()
+
+def generate_image(palette_id=None):
+
+    pal = get_color_palette(palette_id)
+    theme_dict, filename = make_theme(pal)
+    theme_screenshot(theme_dict, filename)
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
