@@ -94,6 +94,9 @@ def make_theme(palette):
     while theme_dict['Active Title Bar'] == theme_dict['Active Title Bar Text']:
         theme_dict['Active Title Bar Text'] = random.choice(palette['colors'])['rgb']
 
+    while theme_dict['Active Title Bar'] == theme_dict['Inactive Title Bar']:
+        theme_dict['Inactive Title Bar'] = random.choice(palette['colors'])['rgb']
+
     while theme_dict['Inactive Title Bar'] == theme_dict['Inactive Title Bar Text']:
         theme_dict['Inactive Title Bar Text'] = random.choice(palette['colors'])['rgb']
 
