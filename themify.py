@@ -8,26 +8,24 @@ DEBUG = True
 color_lookup = {'Desktop': (255, 0, 255, 255),
                 'Inactive Border': (170, 0, 85, 255),
                 'Inactive Title Bar': (255, 0, 0, 255),
-                'Inactive Title Bar Text': (134, 138, 142, 255),
+                'Inactive Title Bar Text': (43, 94, 145, 255),
                 'Active Border': (255, 255, 0, 255),
-                'Active Title Bar': (170, 170, 85, 255),
+                'Active Title Bar': (124, 123, 39, 255),
                 'Active Title Bar Text': (170, 85, 170, 255),
                 'Menu Bar': (14, 54, 255, 255),
                 'Menu Text': (0, 170, 85, 255),
                 'Disabled Text': (190, 189, 189, 255),
                 'Highlighted Text': (255, 255, 255, 255),
-                'Highlight': (0, 170, 85, 255), 
+                'Highlight': (159, 195, 177, 255), 
                 'Application Workspace': (0, 255, 0, 255),
                 'Window Background': (146, 12, 208, 255),
-                'Window Text': (0, 0, 0, 255),
-                'Button Highlight': (159, 195, 177, 255),
+                'Window Text': (165, 242, 255, 255),
+                'Button Highlight': (170, 170, 85, 255),
                 'Button Face': (134, 138, 142, 255),
                 'Button Shadow': (248, 194, 194, 255),
                 'Button Text': (0, 0, 0, 255),
                 'Scrollbars': (0, 255, 255, 255)
 }
-
-
 
 
 def hex_to_rgb(hexcolor):
@@ -122,10 +120,30 @@ def make_theme(palette):
         color_choice = random.choice(palette['colors'])
         theme_dict[field] = color_choice['rgb']
 
-    # Editorial Color Overrides
-    theme_dict['Menu Bar'] = palette['colors'][0]['rgb']
-    theme_dict['Active Tilte Bar'] = palette['colors'][0]['rgb']
-    theme_dict['Active Tilte Text'] = palette['colors'][1]['rgb']
+    while theme_dict['Active Title Bar'] == theme_dict['Active Title Bar Text']:
+        theme_dict['Active Title Bar Text'] = random.choice(palette['colors'])['rgb']
+
+    while theme_dict['Inactive Title Bar'] == theme_dict['Inactive Title Bar Text']:
+        theme_dict['Inactive Title Bar Text'] = random.choice(palette['colors'])['rgb']
+
+    while theme_dict['Menu Bar'] == theme_dict['Menu Text']:
+        theme_dict['Menu Text'] = random.choice(palette['colors'])['rgb']
+
+    while theme_dict['Desktop'] == theme_dict['Highlight']:
+        theme_dict['Highlight'] = random.choice(palette['colors'])['rgb']
+
+    while theme_dict['Highlight'] == theme_dict['Highlighted Text']:
+        theme_dict['Highlighted Text'] = random.choice(palette['colors'])['rgb']
+
+
+    while theme_dict['Button Face'] == theme_dict['Button Text']:
+        theme_dict['Button Text'] = random.choice(palette['colors'])['rgb']
+
+    while theme_dict['Window Background'] == theme_dict['Window Text']:
+        theme_dict['Window Text'] = random.choice(palette['colors'])['rgb']
+
+    while theme_dict['Desktop'] == theme_dict['Disabled Text']:
+        theme_dict['Disabled Text'] = random.choice(palette['colors'])['rgb']
 
     filename = palette['filename']
 
@@ -157,20 +175,4 @@ def generate_image(palette_id=None):
     pal = get_color_palette(palette_id)
     theme_dict, filename = make_theme(pal)
     theme_screenshot(theme_dict, filename)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
