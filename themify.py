@@ -36,30 +36,6 @@ def hex_to_rgb(hexcolor):
     rgb = tuple(int(hexcolor[i:i+2], 16) for i in (0, 2 ,4))
     return rgb
 
-def rgb_to_hsb(r, g, b):
-    """
-    Given a rgb color as a tuple, return its hsv value equivalent as a tuple
-    """
-
-    r, g, b = r/255.0, g/255.0, b/255.0  
-    mx = max(r, g, b)  
-    mn = min(r, g, b)  
-    df = mx-mn  
-    if mx == mn:  
-        h = 0  
-    elif mx == r:  
-        h = (60 * ((g-b)/df) + 360) % 360  
-    elif mx == g:  
-        h = (60 * ((b-r)/df) + 120) % 360  
-    elif mx == b:  
-        h = (60 * ((r-g)/df) + 240) % 360  
-    if mx == 0:  
-        s = 0  
-    else:  
-        s = (df/mx)*100  
-    v = mx*100  
-    return h, s, v 
-
 
 def get_color_palette(palette_id=None):
     """
@@ -84,16 +60,11 @@ def get_color_palette(palette_id=None):
     for hex_color in r[0]['colors']:
         
         rgb = hex_to_rgb(hex_color)        
-        hsb = rgb_to_hsb(*rgb)
 
-        color_dict = { 'hex': hex_color, 'rgb': rgb, 'hsb': hsb }
+        color_dict = { 'hex': hex_color, 'rgb': rgb}
         colors.append(color_dict)
     
     palette_dict['colors'] = colors
-
-
-    # Re-sort colors based on saturation
-    palette_dict['colors'] = sorted(palette_dict['colors'], key=lambda x: x['hsb'][1], reverse=True) 
 
     # Create a filename safe version of title
     palette_dict['filename'] = "".join([c for c in palette_dict['title'] if c.isalpha() or c.isdigit() or c==' ']).rstrip()
@@ -150,8 +121,11 @@ def make_theme(palette):
     return theme_dict, filename
 
 def theme_screenshot(theme_dict, filename):
-
-    img = Image.open('crazypants.gif')
+    """
+    Creates actual image. Loops through each pixel in
+    template and does a find/replace, based on supplied theme dictionary.
+    """
+    img = Image.open('template.gif')
     img = img.convert("RGBA")
 
     pixdata = img.load()
