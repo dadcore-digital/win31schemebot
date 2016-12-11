@@ -2,7 +2,7 @@ import sys
 import requests
 from PIL import Image
 import random
-
+from rasterfont import *
 DEBUG = True
 
 color_lookup = {'Desktop': (255, 0, 255, 255),
@@ -120,10 +120,11 @@ def make_theme(palette):
         theme_dict['Disabled Text'] = random.choice(palette['colors'])['rgb']
 
     filename = palette['filename']
+    title = '%s #%s' % (palette['title'], palette['id'] )
 
-    return theme_dict, filename
+    return theme_dict, title, filename
 
-def theme_screenshot(theme_dict, filename):
+def theme_screenshot(theme_dict, title, filename):
     """
     Creates actual image. Loops through each pixel in
     template and does a find/replace, based on supplied theme dictionary.
@@ -131,6 +132,7 @@ def theme_screenshot(theme_dict, filename):
     img = Image.open('template.gif')
     img = img.convert("RGBA")
 
+    img = print_to_image(img, title, 40, 103, 'system_spritesheet.png')
     pixdata = img.load()
 
     # Clean the background noise, if color != white, then set to black.
@@ -155,6 +157,6 @@ def theme_screenshot(theme_dict, filename):
 def generate_image(palette_id=None):
 
     pal = get_color_palette(palette_id)
-    theme_dict, filename = make_theme(pal)
-    theme_screenshot(theme_dict, filename)
+    theme_dict, title, filename = make_theme(pal)
+    theme_screenshot(theme_dict, title, filename)
 
