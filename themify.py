@@ -1,9 +1,11 @@
 import sys
+from datetime import datetime
 import requests
 from PIL import Image
 import random
 from rasterfont import *
-DEBUG = True
+
+DEBUG = False
 
 color_lookup = {'Desktop': (255, 0, 255, 255),
                 'Inactive Border': (170, 0, 85, 255),
@@ -49,11 +51,20 @@ def get_color_palette(palette_id=None):
     
     r = requests.get(url).json()
     
+    # Can't accept palettes with only one color
+    while len( set(r[0]['colors']) ) == 1:
+    
+        if palette_id:
+            return None
+        else:
+            # Pick a new random palette
+            r = requests.get(url).json() 
 
     palette_dict = {
                     'title': r[0]['title'], 
                     'count': len(r[0]['colors']),
                     'id': r[0]['id'],
+                    'username': r[0]['userName']
                     }
 
     colors = []
@@ -70,6 +81,11 @@ def get_color_palette(palette_id=None):
     palette_dict['filename'] = "".join([c for c in palette_dict['title'] if c.isalpha() or c.isdigit() or c==' ']).rstrip()
     palette_dict['filename'] = palette_dict['filename'].replace(' ', '_')
     palette_dict['filename'] = palette_dict['filename'].lower()
+
+    # Add attribution to image
+
+
+
 
     if DEBUG:
         print palette_dict['id']
@@ -120,11 +136,14 @@ def make_theme(palette):
         theme_dict['Disabled Text'] = random.choice(palette['colors'])['rgb']
 
     filename = palette['filename']
-    title = '%s #%s' % (palette['title'], palette['id'] )
+    title = palette['title']
+    # title = '%s by %s' % (palette['title'], palette['username'] )
 
-    return theme_dict, title, filename
+    attribution_dict = {'title': palette['title'], 'filename': palette['filename'], 'id': palette['id'], 'username': palette['username']}
 
-def theme_screenshot(theme_dict, title, filename):
+    return theme_dict, attribution_dict
+
+def theme_screenshot(theme_dict, title, filename, username):
     """
     Creates actual image. Loops through each pixel in
     template and does a find/replace, based on supplied theme dictionary.
@@ -132,7 +151,9 @@ def theme_screenshot(theme_dict, title, filename):
     img = Image.open('template.gif')
     img = img.convert("RGBA")
 
+    # Add title to select bar in image
     img = print_to_image(img, title, 40, 103, 'system_spritesheet.png')
+
     pixdata = img.load()
 
     # Clean the background noise, if color != white, then set to black.
@@ -144,7 +165,6 @@ def theme_screenshot(theme_dict, title, filename):
                     pixdata[x, y] = theme_dict[k]
                     break
 
-
     if DEBUG:
         path = "generated/%s.png" % filename
         img.show()
@@ -152,11 +172,24 @@ def theme_screenshot(theme_dict, title, filename):
         path = "tweetme"
 
     img.save("%s.png" % path, "PNG")
+    return img
 
 
 def generate_image(palette_id=None):
 
     pal = get_color_palette(palette_id)
-    theme_dict, title, filename = make_theme(pal)
-    theme_screenshot(theme_dict, title, filename)
+    theme_dict, attribution_dict = make_theme(pal)
+    img = theme_screenshot(theme_dict, attribution_dict['title'], attribution_dict['filename'], attribution_dict['username'])
+
+    if not DEBUG:
+        with open("attribution.txt", "a") as attribution_log:
+            timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            palette_link = 'https://www.colourlovers.com/palette/%s/' % attribution_dict['id']
+            attrib_text = '%s %s by %s %s' % (timestamp, attribution_dict['title'], attribution_dict['username'], palette_link ) 
+            attribution_log.write(attrib_text + '\n')
+
+
+
+
+
 

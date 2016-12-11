@@ -75,8 +75,12 @@ def composite(text, bg_img, x, y, sprite_dict, kerning=2):
     x_pos, y_pos = x, y
         
     for char in text:
-        new_bg_img.paste(sprite_dict[char], (x_pos, y_pos))
-        x_pos = x_pos + sprite_dict[char].width + kerning
+        try:
+            new_bg_img.paste(sprite_dict[char], (x_pos, y_pos))
+            x_pos = x_pos + sprite_dict[char].width + kerning
+        except KeyError:
+            # We don't have a sprite for this special character
+            pass
 
 
     return new_bg_img
