@@ -9,3 +9,5 @@ graphics/
 generated/
 tweetme.png
 attribution.txt
+*.env
+.devcontainer/

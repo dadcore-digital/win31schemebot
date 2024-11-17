@@ -94,7 +94,7 @@ def init_chars(spritesheet_path):
     sprite_map = {}
     for row in sprite_map_rows:
         result = build_sprite_map(row[0], row[1], row[2], row[3])
-        sprite_map = dict( sprite_map.items() + result.items() )
+        sprite_map = dict( sprite_map.items() | result.items() )
 
     sprite_dict = build_sprite_dict(sprite_map, sprite_img)
     return sprite_dict
