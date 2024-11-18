@@ -161,11 +161,11 @@ def theme_screenshot(theme_dict, title, filename, username):
     Creates actual image. Loops through each pixel in
     template and does a find/replace, based on supplied theme dictionary.
     """
-    img = Image.open('template.gif')
+    img = Image.open('./template.gif')
     img = img.convert("RGBA")
 
     # Add title to select bar in image
-    img = print_to_image(img, title, 40, 103, 'system_spritesheet.png')
+    img = print_to_image(img, title, 40, 103, '/app/system_spritesheet.png')
 
     pixdata = img.load()
 
@@ -184,7 +184,7 @@ def theme_screenshot(theme_dict, title, filename, username):
     else:
         path = "post_me"
 
-    img.save("%s.png" % path, "PNG")
+    img.save("/app/%s.png" % path, "PNG")
     return img
 
 
@@ -198,12 +198,9 @@ def generate_image(palette_id=None, attrib_log_path=None):
     # Accept arbitrary path for attribution log, default to current dir
     attrib_log_path = attrib_log_path if attrib_log_path else sys.path[0]
 
-    if not DEBUG:
-        with open("%s/ihs_attribution.txt" % attrib_log_path, "a") as attribution_log:
-            timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-            palette_link = 'https://www.colourlovers.com/palette/%s/' % attribution_dict['id']
-            attrib_text = '%s %s by %s %s' % (timestamp, attribution_dict['title'], attribution_dict['username'], palette_link ) 
-            attribution_log.write(attrib_text + '\n')
+    timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    palette_link = 'https://www.colourlovers.com/palette/%s/' % attribution_dict['id']
+    attrib_text = '%s %s by %s %s' % (timestamp, attribution_dict['title'], attribution_dict['username'], palette_link ) 
     
     return img, attrib_text
 

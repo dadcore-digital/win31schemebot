@@ -12,7 +12,6 @@ RUN mkdir /app
 COPY . /app/
 RUN chmod +x /app/post.py
 
-EXPOSE 8000 8001
 ENV DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
 
 ENTRYPOINT ["python", "/app/post.py"]

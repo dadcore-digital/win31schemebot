@@ -12,7 +12,7 @@ def post():
 
 	img, attrib_text = generate_image()
 
-	IMAGE_PATH = './post_me.png'
+	IMAGE_PATH = '/app/post_me.png'
 	IMAGE_ALT_TEXT = attrib_text
       
 	with open(IMAGE_PATH, 'rb') as f:
