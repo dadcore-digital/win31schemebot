@@ -161,7 +161,7 @@ def theme_screenshot(theme_dict, title, filename, username):
     Creates actual image. Loops through each pixel in
     template and does a find/replace, based on supplied theme dictionary.
     """
-    img = Image.open('./template.gif')
+    img = Image.open('/app/template.gif')
     img = img.convert("RGBA")
 
     # Add title to select bar in image
